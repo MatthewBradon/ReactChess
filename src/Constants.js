@@ -43,11 +43,11 @@ export const initialBoardPieces = [
     {image: "/assets/images/pawn_b.png", position: {x: 6, y: 6}, type: PieceType.pawn, team: TeamType.opponent},
     {image: "/assets/images/pawn_b.png", position: {x: 7, y: 6}, type: PieceType.pawn, team: TeamType.opponent},
     //White Pieces
-    {image: "/assets/images/rook_w.png", position: {x: 0, y: 0}, type: PieceType.rook, team: TeamType.player},
+    {image: "/assets/images/rook_w.png", position: {x: 0, y: 4}, type: PieceType.rook, team: TeamType.player},
     {image: "/assets/images/knight_w.png", position: {x: 1, y: 0}, type: PieceType.knight, team: TeamType.player},
     {image: "/assets/images/bishop_w.png", position: {x: 2, y: 0}, type: PieceType.bishop, team: TeamType.player},
     {image: "/assets/images/queen_w.png", position: {x: 3, y: 0}, type: PieceType.queen, team: TeamType.player},
-    {image: "/assets/images/king_w.png", position: {x: 4, y: 4}, type: PieceType.king, team: TeamType.player},
+    {image: "/assets/images/king_w.png", position: {x: 4, y: 0}, type: PieceType.king, team: TeamType.player},
     {image: "/assets/images/bishop_w.png", position: {x: 5, y: 0}, type: PieceType.bishop, team: TeamType.player},
     {image: "/assets/images/knight_w.png", position: {x: 6, y: 0}, type: PieceType.knight, team: TeamType.player},
     {image: "/assets/images/rook_w.png", position: {x: 7, y: 0}, type: PieceType.rook, team: TeamType.player},
