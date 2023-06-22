@@ -136,6 +136,7 @@ export default class Referee {
     }
     queenMove(initialPosition, desiredPosition, team, boardPieces){
         for(let i = 1; i < 8; i++){
+            //Gets axis direction if its left -1 or right +1 or neither then 0 
             let multiplerX = (desiredPosition.x < initialPosition.x) ? -1 : (desiredPosition.x > initialPosition.x) ? 1 : 0;
             let multiplerY = (desiredPosition.y < initialPosition.y) ? -1 : (desiredPosition.y > initialPosition.y) ? 1 : 0;
             let passedPosition = {x: initialPosition.x + (i * multiplerX), y: initialPosition.y + (i * multiplerY)};
@@ -155,6 +156,26 @@ export default class Referee {
         }
         return false;
     }
+    kingMove(initialPosition, desiredPosition, team, boardPieces){
+        //Gets axis direction if its left -1 or right +1 or neither then 0 
+        let directionX = (desiredPosition.x < initialPosition.x) ? -1 : (desiredPosition.x > initialPosition.x) ? 1 : 0;
+        let directionY = (desiredPosition.y < initialPosition.y) ? -1 : (desiredPosition.y > initialPosition.y) ? 1 : 0;
+        let passedPosition = {x: initialPosition.x + directionX, y: initialPosition.y + directionY};
+        
+        if(samePosition(passedPosition, desiredPosition)){
+            //Dealing with the destination tile
+            if(this.tileIsEmptyOrOccupiedByOpponent(passedPosition, team, boardPieces)){
+                return true;
+            }
+        }
+        else {
+            //If the passed tile is occupied by a piece, break out of the loop
+            if(this.tileIsOccupied(passedPosition, boardPieces)){
+                return false;
+            }
+        }
+        return false;
+    }
     isValidMove(initialPosition, desiredPosition, pieceType, team, boardPieces){
         switch(pieceType){
             case PieceType.pawn:
@@ -167,6 +188,8 @@ export default class Referee {
                 return this.rookMove(initialPosition, desiredPosition, team, boardPieces);
             case PieceType.queen:
                 return this.queenMove(initialPosition, desiredPosition, team, boardPieces);
+            case PieceType.king:
+                return this.kingMove(initialPosition, desiredPosition, team, boardPieces);
             default:
                 return false;
             
