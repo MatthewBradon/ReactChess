@@ -9,9 +9,43 @@ export default function Chessboard() {
     const [activePiece, setActivePiece] = useState(null);
     const [grabPosition, setGrabPosition] = useState({x: -1, y: -1});
     const [pieces, setPieces] = useState(initialBoardPieces);
+    const [promotionPawn, setPromotionPawn] = useState(null);
     const chessboardRef = useRef(null);
+    const modalRef = useRef(null);
     const referee = new Referee();
     
+    function promotePawn(type){
+        const updatedPieces = pieces.reduce((results, piece) => {
+            if(samePosition(piece.position, promotionPawn.position)){
+                piece.type = type;
+                const teamType = piece.team === TeamType.player ? "w" : "b";
+                let image = ""
+                switch(type){
+                    case PieceType.queen:
+                        image = "queen";
+                        break;
+                    case PieceType.rook:
+                        image = "rook";
+                        break;
+                    case PieceType.bishop:
+                        image = "bishop";
+                        break;
+                    case PieceType.knight:
+                        image = "knight";
+                        break;
+                }
+                piece.image = `assets/images/${image}_${teamType}.png`;
+            }
+            results.push(piece);
+            return results;
+        }, []);
+        setPieces(updatedPieces);
+        modalRef.current.classList.add("hidden");
+    }
+    function promotionTeamType(){
+        return promotionPawn?.team === TeamType.player ? "w" : "b";
+    }
+
     function grabPiece(event) {
         const element = event.target;
         const chessboard = chessboardRef.current;
@@ -107,6 +141,13 @@ export default function Chessboard() {
         
                             piece.position.x = x;
                             piece.position.y = y;
+                            //Promotion
+                            let promotionRow = piece.team === TeamType.player ? 7 : 0;
+                            if(y === promotionRow && piece.type === PieceType.pawn){
+                                modalRef.current.classList.remove("hidden");
+                                setPromotionPawn(piece);
+                            }
+
                             results.push(piece);
                         }
                         //Push every piece except the one that was attacked
@@ -125,6 +166,7 @@ export default function Chessboard() {
                     activePiece.style.position = "relative";
                     activePiece.style.removeProperty("left");
                     activePiece.style.removeProperty("top");
+                    activePiece.style.zIndex = 0;
                 }
             }   
             setActivePiece(null);
@@ -140,13 +182,25 @@ export default function Chessboard() {
         }
     }
 
-    return <div 
-        onMouseMove={event => movePiece(event)}
-        onMouseDown={event => grabPiece(event)}
-        onMouseUp={event => dropPiece(event)} 
-        id="chessboard"
-        ref={chessboardRef}
-        >
-        {board}
-        </div>
+    return (
+        <>
+            <div id = "pawn-promotion-modal" className = "hidden" ref = {modalRef}>
+                <div className = "modal-body">
+                    <img src = {`/assets/images/rook_${promotionTeamType()}.png`} alt = "rook" id = "modal-rook" onClick ={() => promotePawn(PieceType.rook)}/>
+                    <img src = {`/assets/images/bishop_${promotionTeamType()}.png`} alt = "bishop" id = "modal-bishop" onClick ={() => promotePawn(PieceType.bishop)}/>
+                    <img src = {`/assets/images/knight_${promotionTeamType()}.png`} alt = "knight" id = "modal-knight" onClick ={() => promotePawn(PieceType.knight)}/>
+                    <img src = {`/assets/images/queen_${promotionTeamType()}.png`} alt = "queen" id = "modal-queen" onClick ={() => promotePawn(PieceType.queen)}/>
+                </div> 
+            </div>
+            <div 
+            onMouseMove={event => movePiece(event)}
+            onMouseDown={event => grabPiece(event)}
+            onMouseUp={event => dropPiece(event)} 
+            id="chessboard"
+            ref={chessboardRef}
+            >
+            {board}
+            </div>
+        </>
+    );    
 }
