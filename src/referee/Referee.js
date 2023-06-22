@@ -69,84 +69,29 @@ export default class Referee {
         }
         return false;
     }
-
     bishopMove(initialPosition, desiredPosition, team, boardPieces){
-        //Movement and attack logic
         for(let i = 1; i < 8; i++){
-            //Moving up and right
-            if(desiredPosition.x > initialPosition.x && desiredPosition.y > initialPosition.y){
-                let passedPosition = {x: initialPosition.x + i, y: initialPosition.y + i};
+            //Get diagonal direction based on desired relative to initial
+            let directionX = (desiredPosition.x > initialPosition.x) ? 1 : -1;
+            let directionY = (desiredPosition.y > initialPosition.y) ? 1 : -1;
+            //Get the next tile to check
+            let passedPosition = {x: initialPosition.x + i * directionX, y: initialPosition.y + i * directionY};
 
-                if(samePosition(passedPosition, desiredPosition)){
-                    //Dealing with the destination tile
-                    if(this.tileIsEmptyOrOccupiedByOpponent(passedPosition, team, boardPieces)){
-                        return true;
-                    }
-                }
-                else {
-                    //If the passed tile is occupied by a piece, break out of the loop
-                    if(this.tileIsOccupied(passedPosition, boardPieces)){
-                        break;
-                    }
+            if(samePosition(passedPosition, desiredPosition)){
+                //Dealing with the destination tile
+                if(this.tileIsEmptyOrOccupiedByOpponent(passedPosition, team, boardPieces)){
+                    return true;
                 }
             }
-
-            //Moving up and left
-            if(desiredPosition.x < initialPosition.x && desiredPosition.y > initialPosition.y){
-                let passedPosition = {x: initialPosition.x - i, y: initialPosition.y + i};
-
-                if(samePosition(passedPosition, desiredPosition)){
-                    //Dealing with the destination tile
-                    if(this.tileIsEmptyOrOccupiedByOpponent(passedPosition, team, boardPieces)){
-                        return true;
-                    }
-                }
-                else {
-                    //If the passed tile is occupied by a piece, break out of the loop
-                    if(this.tileIsOccupied(passedPosition, boardPieces)){
-                        break;
-                    }
-                }
-            }
-
-            //Moving down and right
-            if(desiredPosition.x > initialPosition.x && desiredPosition.y < initialPosition.y){
-                let passedPosition = {x: initialPosition.x + i, y: initialPosition.y - i};
-
-                if(samePosition(passedPosition, desiredPosition)){
-                    //Dealing with the destination tile
-                    if(this.tileIsEmptyOrOccupiedByOpponent(passedPosition, team, boardPieces)){
-                        return true;
-                    }
-                }
-                else {
-                    //If the passed tile is occupied by a piece, break out of the loop
-                    if(this.tileIsOccupied(passedPosition, boardPieces)){
-                        break;
-                    }
-                }
-            }
-
-            //Moving down and left
-            if(desiredPosition.x < initialPosition.x && desiredPosition.y < initialPosition.y){
-                let passedPosition = {x: initialPosition.x - i, y: initialPosition.y - i};
-                if(samePosition(passedPosition, desiredPosition)){
-                    //Dealing with the destination tile
-                    if(this.tileIsEmptyOrOccupiedByOpponent(passedPosition, team, boardPieces)){
-                        return true;
-                    }
-                }
-                else {
-                    //If the passed tile is occupied by a piece, break out of the loop
-                    if(this.tileIsOccupied(passedPosition, boardPieces)){
-                        break;
-                    }
+            else {
+                //If the passed tile is occupied by a piece, break out of the loop
+                if(this.tileIsOccupied(passedPosition, boardPieces)){
+                    break;
                 }
             }
         }
-        return false;
+        
     }
-
     rookMove(initialPosition, desiredPosition, team, boardPieces){
         //Vertical movement
         if(initialPosition.x === desiredPosition.x){
@@ -189,7 +134,27 @@ export default class Referee {
         }
         return false;
     }
-
+    queenMove(initialPosition, desiredPosition, team, boardPieces){
+        for(let i = 1; i < 8; i++){
+            let multiplerX = (desiredPosition.x < initialPosition.x) ? -1 : (desiredPosition.x > initialPosition.x) ? 1 : 0;
+            let multiplerY = (desiredPosition.y < initialPosition.y) ? -1 : (desiredPosition.y > initialPosition.y) ? 1 : 0;
+            let passedPosition = {x: initialPosition.x + (i * multiplerX), y: initialPosition.y + (i * multiplerY)};
+            
+            if(samePosition(passedPosition, desiredPosition)){
+                //Dealing with the destination tile
+                if(this.tileIsEmptyOrOccupiedByOpponent(passedPosition, team, boardPieces)){
+                    return true;
+                }
+            }
+            else {
+                //If the passed tile is occupied by a piece, break out of the loop
+                if(this.tileIsOccupied(passedPosition, boardPieces)){
+                    break;
+                }
+            }
+        }
+        return false;
+    }
     isValidMove(initialPosition, desiredPosition, pieceType, team, boardPieces){
         switch(pieceType){
             case PieceType.pawn:
@@ -200,6 +165,8 @@ export default class Referee {
                 return this.bishopMove(initialPosition, desiredPosition, team, boardPieces);
             case PieceType.rook:
                 return this.rookMove(initialPosition, desiredPosition, team, boardPieces);
+            case PieceType.queen:
+                return this.queenMove(initialPosition, desiredPosition, team, boardPieces);
             default:
                 return false;
             
