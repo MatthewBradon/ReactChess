@@ -21,3 +21,21 @@ export const kingMove = (initialPosition, desiredPosition, team, boardPieces) =>
     }
     return false;
 }
+
+export const getPossibleKingMoves = (king, boardPieces) => {
+    const possibleMoves = [];
+    //Check all 4 diagonal directions
+    for(let i = -1; i < 2; i++){
+        for(let j = -1; j < 2; j++){
+            const destination = {x: king.position.x + i, y: king.position.y + j};
+
+            if(!tileIsOccupied(destination, boardPieces)){
+                possibleMoves.push(destination);
+            }
+            else if (tileIsEmptyOrOccupiedByOpponent(destination, king.team, boardPieces)){
+                possibleMoves.push(destination);
+            }
+        }
+    }
+    return possibleMoves;
+}

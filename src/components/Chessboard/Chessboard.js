@@ -46,7 +46,18 @@ export default function Chessboard() {
         return promotionPawn?.team === TeamType.player ? "w" : "b";
     }
 
+    function updateValidMoves(){
+        //Update the possible moves for each piece
+        setPieces((currentPieces) => {
+            return currentPieces.map((piece) => {
+                piece.possibleMoves = referee.getValidMoves(piece, currentPieces);
+                return piece;
+            });
+        });
+    }
+
     function grabPiece(event) {
+        updateValidMoves();
         const element = event.target;
         const chessboard = chessboardRef.current;
 
@@ -172,13 +183,15 @@ export default function Chessboard() {
             setActivePiece(null);
         }
     }
-
+    //Creates the chessboard tiles and pieces
     for (let j = VERTICAL_AXIS.length-1; j >= 0; j--) {
         for (let i = 0; i < HORIZONTAL_AXIS.length; i++) {
             const piece = pieces.find(element => samePosition(element.position, {x: i, y: j}));
             let image = piece ? piece.image : null;
 
-            board.push(<Tile key={`${j},${i}`} number = {i+j} image = {image}/>);
+            let currentPiece = activePiece !== null ? pieces.find(element => samePosition(element.position, grabPosition)) : undefined;
+            let hightlight = currentPiece?.possibleMoves ? currentPiece.possibleMoves.some(piece => samePosition(piece, {x: i, y: j})) : false;
+            board.push(<Tile key={`${j},${i}`} number = {i+j} image = {image} highlight = {hightlight}/>);
         }
     }
 
