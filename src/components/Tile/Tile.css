@@ -34,10 +34,20 @@
     cursor: grabbing;
 }
 
-.tile-highlight::before{
+.tile-highlight:not(.piece-on-tile)::before{
     content: " ";
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+
+.tile-highlight.piece-on-tile::before{
+    position: absolute;
+    content: " ";
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    border: 5px solid rgba(0, 0, 0, 0.4);;
 }

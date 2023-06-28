@@ -3,7 +3,10 @@ import './Tile.css'
 
 export default function Tile(prop) {
     //Creates class name for tile based on tile number and highlight
-    const className = ["tile", prop.number % 2 === 0 ? 'black-tile' : 'white-tile', prop.highlight && 'tile-highlight'].filter(Boolean).join(' ');
+    const className = ["tile",
+    prop.number % 2 === 0 ? 'black-tile' : 'white-tile',
+    prop.highlight && 'tile-highlight',
+    prop.image && 'piece-on-tile'].filter(Boolean).join(' ');
 
 
     return <div className={className}>
