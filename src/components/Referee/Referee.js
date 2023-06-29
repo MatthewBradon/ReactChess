@@ -18,16 +18,14 @@ export default function Referee() {
     const modalRef = useRef(null);
 
     useEffect(() => {
-        updatePossibleMoves();
+        board.calculatePossibleMoves();
     }, []);
 
 
-    function updatePossibleMoves() {
-            board.calculatePossibleMoves();
-    
-    }
 
     function playMove(playedPiece, destination){
+        if(playedPiece.team === TeamType.player && board.totalTurns % 2 === 0) return false;
+        else if(playedPiece.team === TeamType.opponent && board.totalTurns % 2 !== 0) return false;
         
         //const validMove = isValidMove(playedPiece.position, destination, playedPiece.type, playedPiece.team);
         if(playedPiece.possibleMoves === undefined) return false;
@@ -42,8 +40,11 @@ export default function Referee() {
 
         //Plays the move and updates the board
         setBoard((previousBoard) => {
-            isPlayedMoveValid = board.playMove(enpassantMove, validMove, playedPiece, destination);
-            return board.clone();
+            const clonedBoard = board.clone();
+            clonedBoard.totalTurns++;
+            isPlayedMoveValid = clonedBoard.playMove(enpassantMove, validMove, playedPiece, destination);
+            
+            return clonedBoard;
         });
 
         //Promotion
@@ -131,6 +132,9 @@ export default function Referee() {
     function promotionTeamType(){
         return promotionPawn?.team === TeamType.player ? "w" : "b";
     }
+
+    //Odd turns white Even turns black
+    
 
     return (
     <>

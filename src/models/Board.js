@@ -15,57 +15,56 @@ export class Board {
         for(const piece of this.pieces){
             piece.possibleMoves = this.getValidMoves(piece, this.pieces);
         }
-
-        this.checkKingMoves();
-    }
-
-    checkKingMoves(){
-        const king = this.pieces.find(piece => piece.isKing && piece.team === TeamType.opponent);
-
-        if(king?.possibleMoves === undefined) return;
-
-        //Simulate King moves
-        for (const move of king.possibleMoves) {
-            const simulatedBoard = this.clone();
-            const pieceAtDestination = simulatedBoard.pieces.find(piece => piece.samePosition(move));
-
-            if(pieceAtDestination !== undefined){
-                simulatedBoard.pieces = simulatedBoard.pieces.filter(piece => !piece.samePosition(move));
-            }
-
-            const simulatedKing = simulatedBoard.pieces.find(piece => piece.isKing && piece.team === TeamType.opponent);
-            
-            //if(simulatedKing === undefined) continue;
-            
-            simulatedKing.position = move;
-        
-            for(const enemy of simulatedBoard.pieces.filter(piece => piece.team === TeamType.player)){
-                enemy.possibleMoves = this.getValidMoves(enemy, simulatedBoard.pieces);
-            }
-
-            let safe = true;
-            //Check if move is safe
-            for(const piece of simulatedBoard.pieces){
-               
-                    if(piece.team === TeamType.opponent) continue;
-                    if(piece.isPawn){
-                        const possiblePawnMoves = this.getValidMoves(piece, simulatedBoard.pieces);
-                        if(possiblePawnMoves?.some(pawn => pawn.x !== piece.position.x&& pawn.samePosition(move))){
-                            safe = false;
-                            break;
-                        }
-                    }else if(piece.possibleMoves?.some(piece => piece.samePosition(move))){
-                        safe = false;
-                        break;
-                    }
-            }
-            if(!safe){
-                //Remove the move from the possible moves
-                king.possibleMoves = king.possibleMoves?.filter(kingMove => !kingMove.samePosition(move));
-            }
+        //Check if current team moves are valid
+        this.checkCurrentTeamMoves();
+        //Remove possible moves for team that is not playing
+        for(const piece of this.pieces){
+           this.pieces.filter(piece => piece.team !== this.currentTeam).forEach(piece => piece.possibleMoves = []);
         }
     }
 
+    get currentTeam(){
+        return this.totalTurns % 2 === 0 ? TeamType.opponent : TeamType.player;
+    }
+
+    checkCurrentTeamMoves(){
+        // Loop through all the current team's pieces
+        for (const piece of this.pieces.filter(p => p.team === this.currentTeam)) {
+            if (piece.possibleMoves === undefined) continue;
+
+            // Simulate all the piece moves
+            for (const move of piece.possibleMoves) {
+                const simulatedBoard = this.clone();
+
+                // Remove the piece at the destination position
+                simulatedBoard.pieces = simulatedBoard.pieces.filter(p => !p.samePosition(move));
+
+                // Get the piece of the cloned board
+                const clonedPiece = simulatedBoard.pieces.find(p => p.samePiecePosition(piece));
+                clonedPiece.position = move.clone();
+
+                // Get the king of the cloned board
+                const clonedKing = simulatedBoard.pieces.find(p => p.isKing && p.team === simulatedBoard.currentTeam);
+
+                // Loop through all enemy pieces, update their possible moves
+                // And check if the current team's king will be in danger
+                for (const enemy of simulatedBoard.pieces.filter(p => p.team !== simulatedBoard.currentTeam)) {
+                    enemy.possibleMoves = simulatedBoard.getValidMoves(enemy, simulatedBoard.pieces);
+
+                    if (enemy.isPawn) {
+                        if (enemy.possibleMoves.some(m => m.x !== enemy.position.x
+                            && m.samePosition(clonedKing.position))) {
+                            piece.possibleMoves = piece.possibleMoves?.filter(m => !m.samePosition(move));
+                        }
+                    } else {
+                        if (enemy.possibleMoves.some(m => m.samePosition(clonedKing.position))) {
+                            piece.possibleMoves = piece.possibleMoves?.filter(m => !m.samePosition(move));
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     getValidMoves(piece, boardState){
         switch(piece.type){
