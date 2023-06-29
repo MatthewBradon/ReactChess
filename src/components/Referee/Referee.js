@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { initialBoard} from "../../Constants";
 import Chessboard from "../Chessboard/Chessboard";
-import { Position } from "../../models";
+import { Piece, Position } from "../../models";
 import {pawnMove,
         knightMove,
         bishopMove,
@@ -28,8 +28,15 @@ export default function Referee() {
     }
 
     function playMove(playedPiece, destination){
+        
+        //const validMove = isValidMove(playedPiece.position, destination, playedPiece.type, playedPiece.team);
+        if(playedPiece.possibleMoves === undefined) return false;
+
         let isPlayedMoveValid = false;
-        const validMove = isValidMove(playedPiece.position, destination, playedPiece.type, playedPiece.team);
+        const validMove = playedPiece.possibleMoves?.some(move => move.samePosition(destination));
+
+        if(!validMove) return false;
+
         const enpassantMove = enPassantMove(playedPiece.position, destination, playedPiece.type, playedPiece.team);
         
 
@@ -43,7 +50,12 @@ export default function Referee() {
         let promotionRow = playedPiece.team === TeamType.player ? 7 : 0;
         if(destination.y === promotionRow && playedPiece.isPawn){
             modalRef.current.classList.remove("hidden");
-            setPromotionPawn(playedPiece);
+            setPromotionPawn((previousPromotionPawn) => {
+                const clonedPromotionPawn = playedPiece.clone();
+                clonedPromotionPawn.position = destination.clone();
+                return clonedPromotionPawn;
+            }
+            );
         }
 
         //Reduce function results is array of results piece is a single object
@@ -93,35 +105,26 @@ export default function Referee() {
     }
     function promotePawn(type){
         if(promotionPawn === undefined){
-            return;
+            const clonedBoard = board.clone();
+            clonedBoard = [];
+            return clonedBoard;
         }
-
-        board.pieces = board.pieces.reduce((results, piece) => {
-            if(piece.samePiecePosition(promotionPawn)){
-                piece.type = type;
-                const teamType = piece.team === TeamType.player ? "w" : "b";
-                let image = ""
-                switch(type){
-                    case PieceType.queen:
-                        image = "queen";
-                        break;
-                    case PieceType.rook:
-                        image = "rook";
-                        break;
-                    case PieceType.bishop:
-                        image = "bishop";
-                        break;
-                    case PieceType.knight:
-                        image = "knight";
-                        break;
+        setBoard((previousBoard) => {
+            const clonedBoard = board.clone();
+            clonedBoard.pieces = clonedBoard.pieces.reduce((results, piece) => {
+                if(piece.samePiecePosition(promotionPawn)){
+                    results.push(new Piece(type, piece.team, piece.position.clone()));
+                } else {
+                    results.push(piece);
                 }
-                piece.image = `assets/images/${image}_${teamType}.png`;
-            }
-            results.push(piece);
-            return results;
-        }, []);
-        updatePossibleMoves();
-        setBoard(board.clone());
+                return results;
+            }, []);
+            clonedBoard.calculatePossibleMoves();
+            return clonedBoard;
+        });
+
+        
+        
         modalRef.current.classList.add("hidden");
     }
 
@@ -131,6 +134,7 @@ export default function Referee() {
 
     return (
     <>
+        <p>Turn: {board.totalTurns}</p>
         <div id = "pawn-promotion-modal" className = "hidden" ref = {modalRef}>
             <div className = "modal-body">
                 <img src = {`/assets/images/rook_${promotionTeamType()}.png`} alt = "rook" id = "modal-rook" onClick ={() => promotePawn(PieceType.rook)}/>
