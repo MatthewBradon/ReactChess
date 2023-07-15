@@ -1,6 +1,6 @@
 import { PieceType, TeamType } from "../Types";
 import Chessboard from "../components/Chessboard/Chessboard";
-import { getCastlingMoves, getPossibleBishopMoves, getPossibleKingMoves, getPossibleKnightMoves, getPossiblePawnMoves, getPossibleQueenMoves, getPossibleRookMoves } from "../referee/rules";
+import { getCastlingMoves, getPossibleBishopMoves, getPossibleKingMoves, getPossibleKnightMoves, getPossiblePawnMoves, getPossibleQueenMoves, getPossibleRookMoves, inCheck } from "../referee/rules";
 import { Position } from "./Position";
 
 export class Board {
@@ -25,18 +25,28 @@ export class Board {
         //Check if current team moves are valid
         this.checkCurrentTeamMoves();
 
+        //Copy the board to all pieces to check for checkmate and stalemate
+        const allPieces = this.pieces.map(piece => piece.clone());
+
         //Remove possible moves for team that is not playing
         for(const piece of this.pieces){
-           this.pieces.filter(piece => piece.team !== this.currentTeam).forEach(piece => piece.possibleMoves = []);
+            this.pieces.filter(piece => piece.team !== this.currentTeam).forEach(piece => piece.possibleMoves = []);
         }
-
-        //console.log(this.pieces.filter(piece => piece.team === this.currentTeam).map(piece => piece.possibleMoves))
 
         //Check if the current team has moves
         if(this.pieces.filter(piece => piece.team === this.currentTeam).some(piece => piece.possibleMoves !== undefined && piece.possibleMoves.length > 0)) return;
 
+        //Check if the current team is in check
+        
+        if(this.pieces.filter(piece => piece.isKing && inCheck(piece, allPieces)).length > 0){
+            console.log("Checkmate");
+            this.winningTeam = this.currentTeam === TeamType.player ? TeamType.opponent : TeamType.player;
+        }
+        else{
+            this.winningTeam = "draw";
+        }
 
-        this.winningTeam = this.currentTeam === TeamType.player ? TeamType.opponent : TeamType.player;
+        
         
         
     }
@@ -107,7 +117,7 @@ export class Board {
         const pawnDirection = playedPiece.team === TeamType.player ? 1 : -1;
         const destinationPiece = this.pieces.find(piece => piece.samePosition(destination));
         //Castling Move
-        if(playedPiece.isKing && destinationPiece.isRook && destinationPiece.team === playedPiece.team){
+        if(playedPiece.isKing && destinationPiece?.isRook && destinationPiece?.team === playedPiece.team){
             const direction = destinationPiece.position.x > playedPiece.position.x ? 1 : -1;
             //Move king and rook
             const newKingPosition = playedPiece.position.x + 2 * direction;

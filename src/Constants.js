@@ -47,5 +47,14 @@ export const initialBoard = new Board(
     ], 1
 );
 
+//Test Board
+// export const initialBoard = new Board(
+//     [
+//         new Piece(PieceType.king, TeamType.opponent, new Position(4, 7), false),
+//         new Piece(PieceType.queen, TeamType.player, new Position(3, 0), false),
+//         new Piece(PieceType.king, TeamType.player, new Position(4, 0), false)
+//     ], 1
+// );
+
 
 initialBoard.calculatePossibleMoves();

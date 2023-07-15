@@ -17,6 +17,7 @@ export default function Referee() {
     const [promotionPawn, setPromotionPawn] = useState(null);
     const modalRef = useRef(null);
     const checkmateModalRef = useRef(null);
+    const stalemateModalRef = useRef(null);
 
     function playMove(playedPiece, destination){
         if(playedPiece.team === TeamType.player && board.totalTurns % 2 === 0) return false;
@@ -39,10 +40,15 @@ export default function Referee() {
             clonedBoard.totalTurns++;
             isPlayedMoveValid = clonedBoard.playMove(enpassantMove, validMove, playedPiece, destination);
             
-            if(clonedBoard.winningTeam !== undefined){
-                checkmateModalRef.current?.classList.remove("hidden");
+            if(clonedBoard.winningTeam === "draw"){
+                //Stalemate
+                stalemateModalRef.current.classList.remove("hidden");
             }
-
+            else if(clonedBoard.winningTeam !== undefined){
+                //Checkmate
+                checkmateModalRef.current.classList.remove("hidden");
+            }
+            console.log(clonedBoard.winningTeam);
             return clonedBoard;
         });
 
@@ -108,7 +114,7 @@ export default function Referee() {
     }
 
     function restartGame(){
-        
+        stalemateModalRef.current.classList.add("hidden");
         checkmateModalRef.current.classList.add("hidden");
         setBoard(initialBoard.clone());
 
@@ -131,7 +137,14 @@ export default function Referee() {
                     <span>Checkmate! The winner is {board.winningTeam === TeamType.player ? "white" : "black"}!</span>
                     <button onClick={restartGame}>Play Again</button>
                 </div>
-                
+            </div>
+        </div>
+        <div className = "modal hidden" ref = {stalemateModalRef}>
+            <div className = "modal-body">
+                <div className = "checkmate-body">
+                    <span>Stalemate: its a draw!</span>
+                    <button onClick={restartGame}>Play Again</button>
+                </div>
             </div>
         </div>
         <Chessboard playMove={playMove} pieces={board.pieces}/>

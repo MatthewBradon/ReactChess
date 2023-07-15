@@ -76,3 +76,11 @@ export const getCastlingMoves = (king, boardPieces) => {
 
     return possibleMoves;
 }
+
+export const inCheck = (king, boardPieces) => {
+    const enemyPieces = boardPieces.filter(piece => piece.team !== king.team);
+    console.log(enemyPieces);
+    return enemyPieces.some(piece => piece.possibleMoves?.some(move => move.samePosition(king.position)));
+
+
+}
