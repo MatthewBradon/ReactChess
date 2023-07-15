@@ -1,13 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { initialBoard} from "../../Constants";
 import Chessboard from "../Chessboard/Chessboard";
 import { Piece, Position } from "../../models";
-import {pawnMove,
-        knightMove,
-        bishopMove,
-        rookMove,
-        queenMove,
-        kingMove} from "../../referee/rules";
+
 import { PieceType, TeamType } from "../../Types";
 
 
@@ -18,11 +13,12 @@ export default function Referee() {
     const modalRef = useRef(null);
     const checkmateModalRef = useRef(null);
     const stalemateModalRef = useRef(null);
+    const colorModalRef = useRef(null);
+
 
     function playMove(playedPiece, destination){
-        if(playedPiece.team === TeamType.player && board.totalTurns % 2 === 0) return false;
-        else if(playedPiece.team === TeamType.opponent && board.totalTurns % 2 !== 0) return false;
         
+
         //const validMove = isValidMove(playedPiece.position, destination, playedPiece.type, playedPiece.team);
         if(playedPiece.possibleMoves === undefined) return false;
 
@@ -87,7 +83,6 @@ export default function Referee() {
     function promotePawn(type){
         if(promotionPawn === undefined){
             const clonedBoard = board.clone();
-            clonedBoard = [];
             return clonedBoard;
         }
         setBoard(() => {
@@ -116,6 +111,7 @@ export default function Referee() {
     function restartGame(){
         stalemateModalRef.current.classList.add("hidden");
         checkmateModalRef.current.classList.add("hidden");
+        colorModalRef.current.classList.remove("hidden");
         setBoard(initialBoard.clone());
 
     }
@@ -123,6 +119,7 @@ export default function Referee() {
     return (
     <>
         <p>Turn: {board.totalTurns}</p>
+
         <div className = "modal hidden" ref = {modalRef}>
             <div className = "modal-body">
                 <img src = {`/assets/images/rook_${promotionTeamType()}.png`} alt = "rook" id = "modal-rook" onClick ={() => promotePawn(PieceType.rook)}/>

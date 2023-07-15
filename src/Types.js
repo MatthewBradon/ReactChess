@@ -1,3 +1,5 @@
+
+
 export const PieceType = {
     pawn: "pawn", 
     rook: "rook",
@@ -8,6 +10,6 @@ export const PieceType = {
 };
 
 export const TeamType = {
-    opponent: "b",
-    player: "w"
+    opponent: "w",
+    player: "b"
 };

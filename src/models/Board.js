@@ -1,5 +1,4 @@
 import { PieceType, TeamType } from "../Types";
-import Chessboard from "../components/Chessboard/Chessboard";
 import { getCastlingMoves, getPossibleBishopMoves, getPossibleKingMoves, getPossibleKnightMoves, getPossiblePawnMoves, getPossibleQueenMoves, getPossibleRookMoves, inCheck } from "../referee/rules";
 import { Position } from "./Position";
 
@@ -29,9 +28,8 @@ export class Board {
         const allPieces = this.pieces.map(piece => piece.clone());
 
         //Remove possible moves for team that is not playing
-        for(const piece of this.pieces){
-            this.pieces.filter(piece => piece.team !== this.currentTeam).forEach(piece => piece.possibleMoves = []);
-        }
+        this.pieces.filter(piece => piece.team !== this.currentTeam).forEach(piece => piece.possibleMoves = []);
+    
 
         //Check if the current team has moves
         if(this.pieces.filter(piece => piece.team === this.currentTeam).some(piece => piece.possibleMoves !== undefined && piece.possibleMoves.length > 0)) return;
@@ -45,14 +43,13 @@ export class Board {
         else{
             this.winningTeam = "draw";
         }
-
-        
-        
-        
     }
 
     get currentTeam(){
-        return this.totalTurns % 2 === 0 ? TeamType.opponent : TeamType.player;
+        let currentTurn = this.totalTurns % 2;
+        if(TeamType.player === "w" && currentTurn === 1) return TeamType.player;
+        if(TeamType.player === "b" && currentTurn === 0) return TeamType.player;
+        return TeamType.opponent;
     }
 
     checkCurrentTeamMoves(){
