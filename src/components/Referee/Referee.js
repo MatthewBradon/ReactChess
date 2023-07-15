@@ -39,11 +39,11 @@ export default function Referee() {
         
 
         //Plays the move and updates the board
-        setBoard((previousBoard) => {
+        setBoard(() => {
             const clonedBoard = board.clone();
             clonedBoard.totalTurns++;
             isPlayedMoveValid = clonedBoard.playMove(enpassantMove, validMove, playedPiece, destination);
-            
+
             return clonedBoard;
         });
 
@@ -59,35 +59,10 @@ export default function Referee() {
             );
         }
 
-        //Reduce function results is array of results piece is a single object
-        //Loop through the array and push each element into the results array which updates the board.pieces array
-        //En passant move
-
         return isPlayedMoveValid;
     }
 
     
-
-    function isValidMove(initialPosition, desiredPosition, pieceType, team){
-        switch(pieceType){
-            case PieceType.pawn:
-                return pawnMove(initialPosition, desiredPosition, team, board.pieces);
-            case PieceType.knight:
-                return knightMove(initialPosition, desiredPosition, team, board.pieces);
-            case PieceType.bishop:
-                return bishopMove(initialPosition, desiredPosition, team, board.pieces);
-            case PieceType.rook:
-                return rookMove(initialPosition, desiredPosition, team, board.pieces);
-            case PieceType.queen:
-                return queenMove(initialPosition, desiredPosition, team, board.pieces);
-            case PieceType.king:
-                return kingMove(initialPosition, desiredPosition, team, board.pieces);
-            default:
-                return false;
-            
-        }
-    }
-
     function enPassantMove(initialPosition, desiredPosition, pieceType, team){
 
         const direction = team === TeamType.player ? 1 : -1;
@@ -110,11 +85,11 @@ export default function Referee() {
             clonedBoard = [];
             return clonedBoard;
         }
-        setBoard((previousBoard) => {
+        setBoard(() => {
             const clonedBoard = board.clone();
             clonedBoard.pieces = clonedBoard.pieces.reduce((results, piece) => {
                 if(piece.samePiecePosition(promotionPawn)){
-                    results.push(new Piece(type, piece.team, piece.position.clone()));
+                    results.push(new Piece(type, piece.team, piece.position.clone(), piece.hasMoved));
                 } else {
                     results.push(piece);
                 }
@@ -132,9 +107,6 @@ export default function Referee() {
     function promotionTeamType(){
         return promotionPawn?.team === TeamType.player ? "w" : "b";
     }
-
-    //Odd turns white Even turns black
-    
 
     return (
     <>

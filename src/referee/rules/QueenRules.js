@@ -43,7 +43,7 @@ export const getPossibleQueenMoves = (queen, boardPieces) => {
     }
     for(let i = 1; i < 8; i++){
         const destination = new Position(queen.position.x - i, queen.position.y + i);
-
+        
         if(!tileIsOccupied(destination, boardPieces)){
             possibleMoves.push(destination);
         }
@@ -56,6 +56,7 @@ export const getPossibleQueenMoves = (queen, boardPieces) => {
         }
     }
     for(let i = 1; i < 8; i++){
+        
         const destination = new Position(queen.position.x + i, queen.position.y - i);
 
         if(!tileIsOccupied(destination, boardPieces)){
@@ -136,5 +137,5 @@ export const getPossibleQueenMoves = (queen, boardPieces) => {
             break;
         }
     }
-    return possibleMoves;
+    return possibleMoves.filter(move => move.x <= 7 && move.x >= 0 && move.y <= 7 && move.y >= 0);
 }

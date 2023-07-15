@@ -6,12 +6,14 @@ export class Piece {
     team;
     position;
     possibleMoves;
-    constructor(type, team, position, possibleMoves = []){
+    hasMoved;
+    constructor(type, team, position,  hasMoved, possibleMoves = []){
         this.type = type;
         this.team = team;
         this.position = position;
         this.image = `assets/images/${type}_${team}.png`
         this.possibleMoves = possibleMoves;
+        this.hasMoved = hasMoved;
     }
 
     get isPawn(){
@@ -47,6 +49,6 @@ export class Piece {
     }
 
     clone(){
-        return new Piece(this.type, this.team, this.position.clone(), this.possibleMoves?.map(move => move.clone()));
+        return new Piece(this.type, this.team, this.position.clone(), this.hasMoved ,this.possibleMoves?.map(move => move.clone()));
     }
 }

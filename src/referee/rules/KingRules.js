@@ -36,5 +36,45 @@ export const getPossibleKingMoves = (king, boardPieces) => {
             }
         }
     }
+    return possibleMoves.filter(move => move.x <= 7 && move.x >= 0 && move.y <= 7 && move.y >= 0);
+}
+
+export const getCastlingMoves = (king, boardPieces) => {
+    const possibleMoves = [];
+    //Check if king has moved
+    if(king.hasMoved) return possibleMoves;
+    //Get the same team rooks that hasnt moved
+    const rooks = boardPieces.filter(piece => piece.isRook && piece.team === king.team && !piece.hasMoved);
+
+    for(const rook of rooks){
+        const direction = rook.position.x > king.position.x ? 1 : -1;
+        const adjacentPosition = king.position.clone();
+        adjacentPosition.x += direction;
+
+
+        //If the rook cant move up to the kings adjacent position, skip this rook
+        if(!rook.possibleMoves?.some(move => move.samePosition(adjacentPosition))){
+            console.log("Rook cant move up to the kings adjacent position");
+            continue;
+        }
+
+        const concerningTiles = rook.possibleMoves.filter(move => move.y === king.position.y);
+        
+        //Checks if enemy peices are attacking concerning tiles
+        const enemyPieces = boardPieces.filter(piece => piece.team !== king.team);
+        console.log(enemyPieces);
+        
+        if(enemyPieces.some(piece => piece.possibleMoves?.some(move => concerningTiles.some(tile => tile.samePosition(move))))){
+            console.log("Enemy pieces are attacking concerning tiles");
+            continue;
+        }
+
+        //Add the castling move
+        console.log("Castling move added");
+        possibleMoves.push(rook.position.clone());
+    
+    }
+
+
     return possibleMoves;
 }

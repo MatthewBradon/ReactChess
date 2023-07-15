@@ -29,8 +29,7 @@ export default function Chessboard({playMove, pieces}) {
             element.style.position = "absolute";
             element.style.left = `${x}px`;
             element.style.top = `${y}px`;
-    
-            setActivePiece(element);
+            setActivePiece(element);   
         }
     }
     
@@ -78,7 +77,7 @@ export default function Chessboard({playMove, pieces}) {
                     activePiece.style.removeProperty("left");
                     activePiece.style.removeProperty("top");
                 }
-            }   
+            } 
             setActivePiece(null);
         }
     }

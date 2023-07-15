@@ -26,5 +26,5 @@ export const getPossibleKnightMoves = (knight, boardPieces) => {
             }
         }
     }
-    return possibleMoves;
+    return possibleMoves.filter(move => move.x <= 7 && move.x >= 0 && move.y <= 7 && move.y >= 0);
 }

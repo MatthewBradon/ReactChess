@@ -1,5 +1,5 @@
 import { PieceType, TeamType } from "../Types";
-import { getPossibleBishopMoves, getPossibleKingMoves, getPossibleKnightMoves, getPossiblePawnMoves, getPossibleQueenMoves, getPossibleRookMoves } from "../referee/rules";
+import { getCastlingMoves, getPossibleBishopMoves, getPossibleKingMoves, getPossibleKnightMoves, getPossiblePawnMoves, getPossibleQueenMoves, getPossibleRookMoves } from "../referee/rules";
 import { Position } from "./Position";
 
 export class Board {
@@ -15,12 +15,22 @@ export class Board {
         for(const piece of this.pieces){
             piece.possibleMoves = this.getValidMoves(piece, this.pieces);
         }
+        for(const piece of this.pieces){
+            console.log(piece);
+        }
+        //Check castling
+        for(const king of this.pieces.filter(p => p.isKing)){
+            if(king.possibleMoves === undefined) continue;
+            king.possibleMoves = [...king.possibleMoves, ...getCastlingMoves(king, this.pieces)];
+        }
         //Check if current team moves are valid
         this.checkCurrentTeamMoves();
         //Remove possible moves for team that is not playing
         for(const piece of this.pieces){
            this.pieces.filter(piece => piece.team !== this.currentTeam).forEach(piece => piece.possibleMoves = []);
         }
+
+
     }
 
     get currentTeam(){
@@ -87,6 +97,25 @@ export class Board {
 
     playMove(enPassantMove, validMove, playedPiece, destination){
         const pawnDirection = playedPiece.team === TeamType.player ? 1 : -1;
+        const destinationPiece = this.pieces.find(piece => piece.samePosition(destination));
+        //Castling Move
+        if(playedPiece.isKing && destinationPiece.isRook && destinationPiece.team === playedPiece.team){
+            const direction = destinationPiece.position.x > playedPiece.position.x ? 1 : -1;
+            //Move king and rook
+            const newKingPosition = playedPiece.position.x + 2 * direction;
+            this.pieces = this.pieces.map(piece => {
+                if(piece.samePiecePosition(playedPiece)){
+                    piece.position.x = newKingPosition;
+                }
+                else if(piece.samePiecePosition(destinationPiece)){
+                    //Move rook to adjacent king square
+                    piece.position.x = newKingPosition - direction;
+                }
+                return piece;   
+            });
+            this.calculatePossibleMoves();
+            return true;
+        }
 
         if(enPassantMove){
             this.pieces = this.pieces.reduce((results, piece) => {
@@ -94,6 +123,7 @@ export class Board {
                     piece.enPassant = false;
                     piece.position.x = destination.x;
                     piece.position.y = destination.y;
+                    piece.hasMoved = true;
                     results.push(piece);
                 }
                 //Push every piece except the one that was attacked
@@ -117,6 +147,7 @@ export class Board {
                     piece.position.x = destination.x;
                     piece.position.y = destination.y;
                     
+                    piece.hasMoved = true;
 
                     results.push(piece);
                 }
