@@ -46,3 +46,6 @@ export const initialBoard = new Board(
         new Pawn(TeamType.player, new Position(7, 1), false),
     ], 1
 );
+
+
+initialBoard.calculatePossibleMoves();

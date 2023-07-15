@@ -54,7 +54,6 @@ export const getCastlingMoves = (king, boardPieces) => {
 
         //If the rook cant move up to the kings adjacent position, skip this rook
         if(!rook.possibleMoves?.some(move => move.samePosition(adjacentPosition))){
-            console.log("Rook cant move up to the kings adjacent position");
             continue;
         }
 
@@ -65,7 +64,6 @@ export const getCastlingMoves = (king, boardPieces) => {
         console.log(enemyPieces);
         
         if(enemyPieces.some(piece => piece.possibleMoves?.some(move => concerningTiles.some(tile => tile.samePosition(move))))){
-            console.log("Enemy pieces are attacking concerning tiles");
             continue;
         }
 

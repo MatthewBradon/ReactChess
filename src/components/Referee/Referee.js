@@ -13,15 +13,10 @@ import { PieceType, TeamType } from "../../Types";
 
 export default function Referee() {
     //Hooks
-    const [board, setBoard] = useState(initialBoard);
+    const [board, setBoard] = useState(initialBoard.clone());
     const [promotionPawn, setPromotionPawn] = useState(null);
     const modalRef = useRef(null);
-
-    useEffect(() => {
-        board.calculatePossibleMoves();
-    }, []);
-
-
+    const checkmateModalRef = useRef(null);
 
     function playMove(playedPiece, destination){
         if(playedPiece.team === TeamType.player && board.totalTurns % 2 === 0) return false;
@@ -43,6 +38,10 @@ export default function Referee() {
             const clonedBoard = board.clone();
             clonedBoard.totalTurns++;
             isPlayedMoveValid = clonedBoard.playMove(enpassantMove, validMove, playedPiece, destination);
+            
+            if(clonedBoard.winningTeam !== undefined){
+                checkmateModalRef.current?.classList.remove("hidden");
+            }
 
             return clonedBoard;
         });
@@ -108,16 +107,32 @@ export default function Referee() {
         return promotionPawn?.team === TeamType.player ? "w" : "b";
     }
 
+    function restartGame(){
+        
+        checkmateModalRef.current.classList.add("hidden");
+        setBoard(initialBoard.clone());
+
+    }
+
     return (
     <>
         <p>Turn: {board.totalTurns}</p>
-        <div id = "pawn-promotion-modal" className = "hidden" ref = {modalRef}>
+        <div className = "modal hidden" ref = {modalRef}>
             <div className = "modal-body">
                 <img src = {`/assets/images/rook_${promotionTeamType()}.png`} alt = "rook" id = "modal-rook" onClick ={() => promotePawn(PieceType.rook)}/>
                 <img src = {`/assets/images/bishop_${promotionTeamType()}.png`} alt = "bishop" id = "modal-bishop" onClick ={() => promotePawn(PieceType.bishop)}/>
                 <img src = {`/assets/images/knight_${promotionTeamType()}.png`} alt = "knight" id = "modal-knight" onClick ={() => promotePawn(PieceType.knight)}/>
                 <img src = {`/assets/images/queen_${promotionTeamType()}.png`} alt = "queen" id = "modal-queen" onClick ={() => promotePawn(PieceType.queen)}/>
             </div> 
+        </div>
+        <div className = "modal hidden" ref = {checkmateModalRef}>
+            <div className = "modal-body">
+                <div className = "checkmate-body">
+                    <span>Checkmate! The winner is {board.winningTeam === TeamType.player ? "white" : "black"}!</span>
+                    <button onClick={restartGame}>Play Again</button>
+                </div>
+                
+            </div>
         </div>
         <Chessboard playMove={playMove} pieces={board.pieces}/>
     </>
